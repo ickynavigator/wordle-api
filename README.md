@@ -2,7 +2,7 @@
 
 # Wordle API
 
-> This is a simple beginner project to learn how to work with rust in the backend.
+> This is a simple beginner project to learn how to work with rust in the backend by creating a wordle API.
 
 ## TODO
 
