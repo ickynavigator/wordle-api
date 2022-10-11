@@ -1,4 +1,5 @@
 mod api;
+mod lib;
 mod model;
 
 use api::wordle;
