@@ -3,7 +3,7 @@ use tide::prelude::*;
 use uuid::Uuid;
 
 /// The game model for the wordle session.
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Game {
     /// Game ID
     pub id: String,
@@ -19,18 +19,14 @@ impl Game {
     /// Create a new game session with a given creator ID.
     /// Uses the timestamp to generate a start time
     pub fn new_game(creator_id: String) -> Game {
-        let timestamp = Utc::now().timestamp();
+        let start_time = Utc::now().timestamp();
+        let id = Uuid::new_v4().to_string();
 
         Game {
-            id: Uuid::new_v4().to_string(),
+            id,
             creator_id,
+            start_time,
             attempts: vec![],
-            start_time: timestamp,
         }
-    }
-
-    /// Push a new attempt on the game session
-    pub fn add_attempt(&mut self, attempt: String) {
-        self.attempts.push(attempt);
     }
 }
