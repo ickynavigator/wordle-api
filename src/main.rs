@@ -1,5 +1,6 @@
 mod api;
 mod lib;
+mod middleware;
 mod model;
 
 use api::wordle;
@@ -12,9 +13,20 @@ async fn main() -> tide::Result<()> {
         games: Default::default(),
     };
 
-    let mut app = tide::with_state(app_state);
+    let mut app = tide::new();
+    app.with(tide::log::LogMiddleware::new());
 
-    app.at("/create").post(wordle::create_game);
+    app.at("/").get(|_| async { Ok("Root") });
+
+    app.at("/wordle").nest({
+        let mut api = tide::with_state(app_state);
+
+        api.at("/create").post(wordle::create_game);
+
+        api.at("/attempt").post(wordle::add_attempt);
+
+        api
+    });
 
     app.listen("127.0.0.1:8080").await?;
     Ok(())
