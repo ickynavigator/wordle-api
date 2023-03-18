@@ -25,17 +25,16 @@ pub async fn create_game(mut req: Request<Store>) -> tide::Result {
     };
     let creator_id = body.creator_id;
 
-    let mut store = req.state().games.write().await;
-    println!("Store: {:?}", store);
+    let store = req.state();
 
-    match creator_checks(store.clone(), creator_id.clone()) {
+    match creator_checks(store.get_games(), creator_id.clone()) {
         CreatorCheckResult::NoGameExists => {
             let mut response = Response::new(200);
 
-            let game = Game::new_game(creator_id.clone());
-            store.insert(String::from(&creator_id), game.clone());
+            let game = Game::new(creator_id.clone());
+            store.to_owned().add_game(game);
 
-            if let Some(game) = store.get(&creator_id) {
+            if let Some(game) = store.get_games().get(&creator_id) {
                 response.set_body(Body::from_json(&game)?);
             } else {
                 response.set_status(400);
@@ -72,11 +71,11 @@ pub async fn add_attempt(mut req: Request<Store>) -> tide::Result {
         attempt,
     } = body;
 
-    let store = req.state().games.write().await;
+    let store = req.state();
     println!("Store: {:?}", store);
 
     // first check if an attempt can be made
-    let mut game = match store.get(&creator_id) {
+    let mut game = match store.get_games().get(&creator_id) {
         Some(game) => game.to_owned(),
         None => {
             let mut response = Response::new(400);
@@ -108,6 +107,15 @@ pub async fn add_attempt(mut req: Request<Store>) -> tide::Result {
         response.set_status(400);
         response.set_body(format!("No Attempts are possible"));
     }
+
+    Ok(response)
+}
+
+pub async fn fetch_all_games(req: Request<Store>) -> tide::Result {
+    let games = { req.state().games.clone() };
+
+    let mut response = Response::new(200);
+    response.set_body(Body::from_json(&games)?);
 
     Ok(response)
 }
