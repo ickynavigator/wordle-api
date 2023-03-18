@@ -45,7 +45,7 @@ pub const GAME_MAX_ATTEMPT: usize = 6;
 impl Game {
     /// Create a new game session with a given creator ID.
     /// Uses the timestamp to generate a start time
-    pub fn new_game(creator_id: String) -> Game {
+    pub fn new(creator_id: String) -> Game {
         let start_time = Utc::now().timestamp();
         let id = Uuid::new_v4().to_string();
         let answer = ("ANSWER").to_string();
