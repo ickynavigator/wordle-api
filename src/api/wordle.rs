@@ -15,7 +15,7 @@ pub async fn create_game(mut req: Request<Store>) -> tide::Result {
         creator_id: String,
     }
 
-    let body: CreateBody = match req.body_json().await {
+    let CreateBody { creator_id } = match req.body_json().await {
         Ok(body) => body,
         Err(e) => {
             let mut response = Response::new(400);
@@ -23,7 +23,6 @@ pub async fn create_game(mut req: Request<Store>) -> tide::Result {
             return Ok(response);
         }
     };
-    let creator_id = body.creator_id;
 
     let store = req.state();
 
@@ -58,7 +57,10 @@ pub async fn add_attempt(mut req: Request<Store>) -> tide::Result {
         attempt: String,
     }
 
-    let body: AttemptBody = match req.body_json().await {
+    let AttemptBody {
+        creator_id,
+        attempt,
+    } = match req.body_json().await {
         Ok(body) => body,
         Err(e) => {
             let mut response = Response::new(400);
@@ -66,13 +68,8 @@ pub async fn add_attempt(mut req: Request<Store>) -> tide::Result {
             return Ok(response);
         }
     };
-    let AttemptBody {
-        creator_id,
-        attempt,
-    } = body;
 
     let store = req.state();
-    println!("Store: {:?}", store);
 
     // first check if an attempt can be made
     let mut game = match store.get_games().get(&creator_id) {
