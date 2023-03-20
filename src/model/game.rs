@@ -92,3 +92,13 @@ impl Game {
         true
     }
 }
+
+impl fmt::Display for Game {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "Game {{ id: {}, creator_id: {}, answer: {}, attempts: {:?}, start_time: {} }}",
+            self.id, self.creator_id, self.answer, self.attempts, self.start_time
+        )
+    }
+}
