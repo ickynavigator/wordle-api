@@ -1,4 +1,5 @@
 use chrono::Utc;
+use sqlx::FromRow;
 use std::fmt;
 use tide::prelude::*;
 use uuid::Uuid;
@@ -27,7 +28,7 @@ impl fmt::Display for AttemptTypeResults {
 }
 
 /// The game model for the wordle session.
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, FromRow)]
 pub struct Game {
     /// Game ID
     pub id: String,
@@ -44,15 +45,16 @@ pub struct Game {
 pub const GAME_MAX_ATTEMPT: usize = 6;
 impl Game {
     /// Create a new game session with a given creator ID.
+    ///
     /// Uses the timestamp to generate a start time
-    pub fn new(creator_id: String) -> Game {
+    pub fn new(creator_id: &String) -> Game {
         let start_time = Utc::now().timestamp();
         let id = Uuid::new_v4().to_string();
         let answer = ("ANSWER").to_string();
 
         Game {
             id,
-            creator_id,
+            creator_id: creator_id.clone(),
             answer,
             attempts: vec![],
             start_time,
